@@ -30,10 +30,12 @@ export default async function ParticipantPage({ params }: { params: Promise<{ to
     <PageShell>
       <section className="text-center">
         <p className="text-sm font-semibold tracking-widest text-muted uppercase">{event.name}</p>
-        <h1 className="mt-1 font-display text-5xl text-berry">Hi {me.name}!</h1>
+        <h1 className="mt-1 font-display text-5xl text-berry">Здравей, {me.name}!</h1>
         {(event.budget || event.exchangeDate) && (
           <p className="mt-2 flex flex-wrap justify-center gap-2 text-sm">
-            {event.budget && <span className="rounded-full bg-gold/15 px-3 py-1 font-semibold">💰 Budget {event.budget}</span>}
+            {event.budget && (
+              <span className="rounded-full bg-gold/15 px-3 py-1 font-semibold">💰 Бюджет {event.budget}</span>
+            )}
             {event.exchangeDate && (
               <span className="rounded-full bg-gold/15 px-3 py-1 font-semibold">📅 {event.exchangeDate}</span>
             )}
@@ -49,26 +51,26 @@ export default async function ParticipantPage({ params }: { params: Promise<{ to
       <div className="mt-8 grid gap-6">
         {giftee ? (
           <section className="reveal card border-2 border-pine">
-            <p className="text-center text-sm font-semibold tracking-widest text-muted uppercase">You&apos;re buying a gift for</p>
+            <p className="text-center text-sm font-semibold tracking-widest text-muted uppercase">Ти подаряваш на</p>
             <p className="mt-1 text-center font-display text-6xl text-pine">🎁 {giftee.name}</p>
             <div className="mt-6">
-              <h2 className="mb-3 font-bold">{giftee.name}&apos;s wishlist</h2>
+              <h2 className="mb-3 font-bold">Списъкът с желания на {giftee.name}</h2>
               {giftee.wishes.length === 3 ? (
                 <WishList items={giftee.wishes} />
               ) : (
                 <p className="rounded-xl bg-cream px-4 py-3 text-muted">
-                  {giftee.name} hasn&apos;t written their wishlist yet. Check back here later. Same link, no need to log in.
+                  {giftee.name} все още не е написал(а) списъка си. Провери отново по-късно на същия линк.
                 </p>
               )}
             </div>
-            <p className="mt-4 text-center text-sm text-muted">🤫 Shh! Keep it a secret.</p>
+            <p className="mt-4 text-center text-sm text-muted">🤫 Шшт! Пази тайната.</p>
           </section>
         ) : (
           <section className="card relative overflow-hidden border-2 border-dashed border-gold text-center">
             <p className="text-5xl">🔒</p>
-            <h2 className="mt-2 font-display text-3xl text-berry">Who are you buying for?</h2>
+            <h2 className="mt-2 font-display text-3xl text-berry">На кого ще подаряваш?</h2>
             <p className="mx-auto mt-1 max-w-sm text-muted">
-              Fill in your 3 wishes below and your giftee will be revealed right here.
+              Попълни 3-те си желания по-долу и името ще се появи точно тук.
             </p>
           </section>
         )}

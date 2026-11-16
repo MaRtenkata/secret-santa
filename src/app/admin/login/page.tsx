@@ -12,17 +12,17 @@ export default function LoginPage() {
       <form action={action} className="card mt-6 space-y-4">
         <div className="text-center">
           <p className="text-4xl">🔑</p>
-          <h1 className="font-display text-4xl text-berry">Organiser login</h1>
+          <h1 className="font-display text-4xl text-berry">Вход за организатора</h1>
         </div>
         <div>
           <label htmlFor="password" className="label">
-            Password
+            Парола
           </label>
           <input id="password" name="password" type="password" required autoFocus className="input" />
         </div>
         {state?.error && <p className="rounded-lg bg-berry/10 px-3 py-2 text-sm text-berry">{state.error}</p>}
         <button type="submit" className="btn-primary w-full" disabled={pending}>
-          {pending ? "Checking…" : "Log in"}
+          {pending ? "Проверка…" : "Вход"}
         </button>
       </form>
     </PageShell>

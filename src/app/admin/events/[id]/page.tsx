@@ -16,33 +16,39 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
   const done = people.filter((p) => p.wishCount >= 3).length;
   const failed = people.filter((p) => p.emailError).length;
+  const missing = people.length - done;
 
   return (
     <PageShell right={<AdminNav />}>
       <h1 className="font-display text-5xl text-berry">{event.name}</h1>
       <p className="mt-1 text-muted">
-        {[event.budget && `Budget ${event.budget}`, event.exchangeDate].filter(Boolean).join(" · ") || "No budget or date set"}
+        {[event.budget && `Бюджет ${event.budget}`, event.exchangeDate].filter(Boolean).join(" · ") ||
+          "Без бюджет и дата"}
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <Stat label="People" value={people.length} />
-        <Stat label="Wishlists done" value={`${done}/${people.length}`} tone={done === people.length ? "good" : "warn"} />
-        <Stat label="Emails failed" value={failed} tone={failed ? "bad" : "good"} />
+        <Stat label="Участници" value={people.length} />
+        <Stat
+          label="Готови списъци"
+          value={`${done}/${people.length}`}
+          tone={done === people.length ? "good" : "warn"}
+        />
+        <Stat label="Неуспешни имейли" value={failed} tone={failed ? "bad" : "good"} />
       </div>
 
       <section className="card mt-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-bold">Participants</h2>
-          {done < people.length && (
+          <h2 className="text-lg font-bold">Участници</h2>
+          {missing > 0 && (
             <form action={remindMissingWishlists}>
               <input type="hidden" name="eventId" value={event.id} />
-              <SubmitButton className="btn-ghost text-sm" pendingText="Sending reminders…">
-                ✉️ Remind the {people.length - done} without a wishlist
+              <SubmitButton className="btn-ghost text-sm" pendingText="Изпращане на напомняния…">
+                ✉️ Напомни на {missing} без списък
               </SubmitButton>
             </form>
           )}
         </div>
-        <p className="mt-1 text-sm text-muted">Who drew whom stays secret, even from you.</p>
+        <p className="mt-1 text-sm text-muted">Кой на кого подарява остава тайна, дори за теб.</p>
 
         <ul className="mt-4 divide-y divide-line">
           {people.map((p) => (
@@ -50,15 +56,15 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
               <div className="min-w-0">
                 <p className="font-semibold">{p.name}</p>
                 <p className="truncate text-sm text-muted">{p.email}</p>
-                {p.emailError && <p className="mt-1 text-sm text-berry">Email failed: {p.emailError}</p>}
+                {p.emailError && <p className="mt-1 text-sm text-berry">Имейлът не е изпратен: {p.emailError}</p>}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Badge ok={p.wishCount >= 3} okText="🎁 Wishlist done" noText={`📝 ${p.wishCount}/3 wishes`} />
-                <Badge ok={!!p.emailSentAt && !p.emailError} okText="✉️ Emailed" noText="✉️ Not sent" />
+                <Badge ok={p.wishCount >= 3} okText="🎁 Списъкът е готов" noText={`📝 ${p.wishCount}/3 желания`} />
+                <Badge ok={!!p.emailSentAt && !p.emailError} okText="✉️ Изпратен" noText="✉️ Не е изпратен" />
                 <form action={resendEmail}>
                   <input type="hidden" name="participantId" value={p.id} />
-                  <SubmitButton className="btn-ghost px-3 py-1.5 text-sm" pendingText="Sending…">
-                    Resend
+                  <SubmitButton className="btn-ghost px-3 py-1.5 text-sm" pendingText="Изпращане…">
+                    Изпрати отново
                   </SubmitButton>
                 </form>
               </div>
@@ -68,15 +74,15 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
       </section>
 
       <details className="card mt-6">
-        <summary className="cursor-pointer font-semibold text-berry">Delete this event</summary>
+        <summary className="cursor-pointer font-semibold text-berry">Изтрий събитието</summary>
         <form action={deleteEvent} className="mt-4 grid gap-3">
           <input type="hidden" name="eventId" value={event.id} />
           <label htmlFor="confirm" className="label">
-            This removes everyone&apos;s wishlists and links. Type <b>{event.name}</b> to confirm.
+            Това ще изтрие всички списъци и линкове. Напиши <b>{event.name}</b>, за да потвърдиш.
           </label>
           <input id="confirm" name="confirm" className="input" autoComplete="off" />
-          <SubmitButton className="btn-berry justify-self-start" pendingText="Deleting…">
-            Delete event
+          <SubmitButton className="btn-berry justify-self-start" pendingText="Изтриване…">
+            Изтрий събитието
           </SubmitButton>
         </form>
       </details>
@@ -85,7 +91,8 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 }
 
 function Stat({ label, value, tone }: { label: string; value: React.ReactNode; tone?: "good" | "warn" | "bad" }) {
-  const color = tone === "good" ? "text-pine" : tone === "warn" ? "text-[#8a6418]" : tone === "bad" ? "text-berry" : "text-ink";
+  const color =
+    tone === "good" ? "text-pine" : tone === "warn" ? "text-[#8a6418]" : tone === "bad" ? "text-berry" : "text-ink";
   return (
     <div className="card">
       <p className="text-sm text-muted">{label}</p>

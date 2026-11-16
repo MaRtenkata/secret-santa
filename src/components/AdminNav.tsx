@@ -5,11 +5,11 @@ export default function AdminNav() {
   return (
     <nav className="flex items-center gap-4 text-sm font-semibold">
       <Link href="/admin" className="hover:underline">
-        Events
+        Събития
       </Link>
       <form action={logout}>
         <button type="submit" className="opacity-80 hover:underline hover:opacity-100">
-          Log out
+          Изход
         </button>
       </form>
     </nav>

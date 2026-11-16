@@ -24,40 +24,41 @@ export default function NewEventForm() {
     setRows((rs) => rs.map((r) => (r.key === key ? { ...r, [field]: value } : r)));
 
   const filled = rows.filter((r) => r.name.trim() || r.email.trim());
+  const optional = <span className="font-normal text-muted">(по желание)</span>;
 
   return (
     <form action={action} className="mt-8 grid gap-6">
       <section className="card grid gap-4">
-        <h2 className="text-lg font-bold">The event</h2>
+        <h2 className="text-lg font-bold">Събитието</h2>
         <div>
           <label htmlFor="name" className="label">
-            Event name
+            Име на събитието
           </label>
-          <input {...bind("name")} required maxLength={100} placeholder="Family Christmas 2026" className="input" />
+          <input {...bind("name")} required maxLength={100} placeholder="Семейна Коледа 2026" className="input" />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="budget" className="label">
-              Budget <span className="font-normal text-muted">(optional)</span>
+              Бюджет {optional}
             </label>
-            <input {...bind("budget")} maxLength={40} placeholder="€30" className="input" />
+            <input {...bind("budget")} maxLength={40} placeholder="30 €" className="input" />
           </div>
           <div>
             <label htmlFor="exchangeDate" className="label">
-              Gift exchange <span className="font-normal text-muted">(optional)</span>
+              Размяна на подаръците {optional}
             </label>
-            <input {...bind("exchangeDate")} maxLength={60} placeholder="24 December, at Grandma's" className="input" />
+            <input {...bind("exchangeDate")} maxLength={60} placeholder="24 декември, у баба" className="input" />
           </div>
         </div>
         <div>
           <label htmlFor="message" className="label">
-            Message for everyone <span className="font-normal text-muted">(optional)</span>
+            Съобщение до всички {optional}
           </label>
           <textarea
             {...bind("message")}
             rows={3}
             maxLength={1000}
-            placeholder="Keep it a surprise! No peeking 🎄"
+            placeholder="Пазете тайната! Без надничане 🎄"
             className="input resize-y"
           />
         </div>
@@ -65,23 +66,23 @@ export default function NewEventForm() {
 
       <section className="card grid gap-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-lg font-bold">Who&apos;s taking part</h2>
-          <span className="text-sm text-muted">{filled.length} people · at least 3</span>
+          <h2 className="text-lg font-bold">Участници</h2>
+          <span className="text-sm text-muted">{filled.length} души · минимум 3</span>
         </div>
-        <p className="-mt-2 text-sm text-muted">If you&apos;re joining in too, add yourself here.</p>
+        <p className="-mt-2 text-sm text-muted">Ако и ти участваш, добави и себе си.</p>
 
         <ul className="grid gap-3">
           {rows.map((r, i) => (
             <li key={r.key} className="grid grid-cols-[1fr_auto] gap-2 sm:grid-cols-[1fr_1.4fr_auto]">
               <input
-                aria-label={`Person ${i + 1} name`}
-                placeholder="Name"
+                aria-label={`Име на участник ${i + 1}`}
+                placeholder="Име"
                 value={r.name}
                 onChange={(e) => update(r.key, "name", e.target.value)}
                 className="input"
               />
               <input
-                aria-label={`Person ${i + 1} email`}
+                aria-label={`Имейл на участник ${i + 1}`}
                 type="email"
                 placeholder="email@example.com"
                 value={r.email}
@@ -92,7 +93,7 @@ export default function NewEventForm() {
                 type="button"
                 onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}
                 disabled={rows.length <= 3}
-                aria-label={`Remove person ${i + 1}`}
+                aria-label={`Премахни участник ${i + 1}`}
                 className="btn-ghost px-3 sm:row-start-auto"
               >
                 ✕
@@ -100,8 +101,12 @@ export default function NewEventForm() {
             </li>
           ))}
         </ul>
-        <button type="button" onClick={() => setRows((rs) => [...rs, blank(nextKey++)])} className="btn-ghost justify-self-start">
-          + Add person
+        <button
+          type="button"
+          onClick={() => setRows((rs) => [...rs, blank(nextKey++)])}
+          className="btn-ghost justify-self-start"
+        >
+          + Добави участник
         </button>
       </section>
 
@@ -115,9 +120,9 @@ export default function NewEventForm() {
 
       <div className="flex flex-wrap items-center gap-4">
         <button type="submit" className="btn-berry text-lg" disabled={pending}>
-          {pending ? "Drawing names & sending emails…" : "🎁 Create & send invites"}
+          {pending ? "Теглене и изпращане на имейли…" : "🎁 Създай и изпрати поканите"}
         </button>
-        <span className="text-sm text-muted">This can take a few seconds.</span>
+        <span className="text-sm text-muted">Може да отнеме няколко секунди.</span>
       </div>
     </form>
   );

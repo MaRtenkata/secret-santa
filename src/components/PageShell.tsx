@@ -13,8 +13,8 @@ export default function PageShell({
     <>
       <header className="bg-berry text-cream shadow-md">
         <div className={`mx-auto flex ${width} items-center justify-between gap-4 px-4 py-3`}>
-          <Link href="/" className="font-display text-3xl leading-none">
-            🎅 Secret Santa
+          <Link href="/" className="font-display text-2xl leading-none sm:text-3xl">
+            🎅 Таен Дядо Коледа
           </Link>
           {right}
         </div>

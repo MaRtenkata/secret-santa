@@ -11,27 +11,30 @@ export default async function AdminHome() {
   return (
     <PageShell right={<AdminNav />}>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-display text-5xl text-berry">Your events</h1>
+        <h1 className="font-display text-5xl text-berry">Твоите събития</h1>
         <Link href="/admin/events/new" className="btn-primary">
-          + New event
+          + Ново събитие
         </Link>
       </div>
 
       {events.length === 0 ? (
         <div className="card mt-8 text-center">
           <p className="text-5xl">🦌</p>
-          <p className="mt-3 text-lg font-bold">No events yet</p>
-          <p className="text-muted">Create one, add everyone taking part, and the app sends out the invites.</p>
+          <p className="mt-3 text-lg font-bold">Все още няма събития</p>
+          <p className="text-muted">Създай събитие, добави участниците и приложението ще изпрати поканите.</p>
         </div>
       ) : (
         <ul className="mt-8 grid gap-4">
           {events.map((e) => (
             <li key={e.id}>
-              <Link href={`/admin/events/${e.id}`} className="card flex flex-wrap items-center justify-between gap-3 transition hover:border-gold">
+              <Link
+                href={`/admin/events/${e.id}`}
+                className="card flex flex-wrap items-center justify-between gap-3 transition hover:border-gold"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-lg font-bold">{e.name}</p>
                   <p className="text-sm text-muted">
-                    {e.total} people{e.exchangeDate ? ` · ${e.exchangeDate}` : ""}
+                    {e.total} участници{e.exchangeDate ? ` · ${e.exchangeDate}` : ""}
                   </p>
                 </div>
                 <span
@@ -39,7 +42,7 @@ export default async function AdminHome() {
                     e.done === e.total ? "bg-pine/10 text-pine" : "bg-gold/15 text-[#8a6418]"
                   }`}
                 >
-                  {e.done}/{e.total} wishlists
+                  {e.done}/{e.total} списъка
                 </span>
               </Link>
             </li>

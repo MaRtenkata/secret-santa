@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Mountains_of_Christmas, Nunito } from "next/font/google";
+import { Lobster, Nunito } from "next/font/google";
 import Snowfall from "@/components/Snowfall";
 import "./globals.css";
 
-const christmas = Mountains_of_Christmas({
+// Lobster has Cyrillic letters, so headings render properly in Bulgarian.
+const display = Lobster({
   variable: "--font-christmas",
-  weight: ["700"],
-  subsets: ["latin"],
+  weight: ["400"],
+  subsets: ["latin", "cyrillic"],
 });
 
 const nunito = Nunito({
@@ -15,14 +16,14 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Secret Santa",
-  description: "Draw names, write wishlists, and find out who you're buying for.",
+  title: "Таен Дядо Коледа",
+  description: "Теглене на имена, списъци с желания и разкриване на кого подаряваш.",
   robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${christmas.variable} ${nunito.variable}`}>
+    <html lang="bg" className={`${display.variable} ${nunito.variable}`}>
       <body className="min-h-dvh antialiased">
         <Snowfall />
         <div className="relative">{children}</div>

@@ -9,7 +9,7 @@ export type WishlistState = { error?: string; saved?: boolean } | undefined;
 
 export async function saveWishlist(token: string, _: WishlistState, formData: FormData): Promise<WishlistState> {
   const p = (await db().select().from(participants).where(eq(participants.token, token)))[0];
-  if (!p) return { error: "This link doesn't match anyone. Check the link in your email." };
+  if (!p) return { error: "Този линк не е валиден. Провери линка в имейла си." };
 
   const parsed = wishlistSchema.safeParse(
     [1, 2, 3].map((n) => ({

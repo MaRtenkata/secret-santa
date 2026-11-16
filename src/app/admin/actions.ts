@@ -16,7 +16,7 @@ export type FormState = { error?: string } | undefined;
 
 export async function login(_: FormState, formData: FormData): Promise<FormState> {
   const password = String(formData.get("password") ?? "");
-  if (!passwordMatches(password)) return { error: "That password isn't right." };
+  if (!passwordMatches(password)) return { error: "Грешна парола." };
   const store = await cookies();
   store.set(SESSION_COOKIE, await createSessionToken(), {
     httpOnly: true,
@@ -59,7 +59,7 @@ export async function createEvent(_: FormState, formData: FormData): Promise<For
   try {
     rawParticipants = JSON.parse(String(formData.get("participants") ?? "[]"));
   } catch {
-    return { error: "Couldn't read the list of people. Please try again." };
+    return { error: "Списъкът с участници не можа да бъде прочетен. Опитай отново." };
   }
 
   const parsed = eventSchema.safeParse({

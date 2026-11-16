@@ -22,16 +22,20 @@ export default function WishlistSection({ token, initial }: { token: string; ini
   const update = (i: number, field: keyof Wish, value: string) =>
     setWishes((ws) => ws.map((w, j) => (j === i ? { ...w, [field]: value } : w)));
 
+  const optional = <span className="font-normal text-muted">(по желание)</span>;
+
   if (!editing) {
     return (
       <section className="card">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-display text-3xl text-pine">Your wishlist</h2>
+          <h2 className="font-display text-3xl text-pine">Твоят списък с желания</h2>
           <button type="button" onClick={() => setEditing(true)} className="btn-ghost text-sm">
-            ✏️ Edit
+            ✏️ Редактирай
           </button>
         </div>
-        {state?.saved && <p className="mt-1 text-sm font-semibold text-pine">Saved! Your Secret Santa can see it now.</p>}
+        {state?.saved && (
+          <p className="mt-1 text-sm font-semibold text-pine">Запазено! Твоят Таен Дядо Коледа вече може да го види.</p>
+        )}
         <div className="mt-4">
           <WishList items={initial.map((w, i) => ({ position: i + 1, ...w }))} />
         </div>
@@ -42,9 +46,9 @@ export default function WishlistSection({ token, initial }: { token: string; ini
   return (
     <form action={action} className="card grid gap-5">
       <div>
-        <h2 className="font-display text-3xl text-pine">Your wishlist</h2>
+        <h2 className="font-display text-3xl text-pine">Твоят списък с желания</h2>
         <p className="text-muted">
-          Add 3 things you&apos;d love to get. For each one, paste a link to it, describe it, or both.
+          Добави 3 неща, които би искал(а) да получиш. За всяко постави линк, напиши описание или и двете.
         </p>
       </div>
 
@@ -52,10 +56,10 @@ export default function WishlistSection({ token, initial }: { token: string; ini
         const n = i + 1;
         return (
           <fieldset key={n} className="grid gap-3 rounded-xl border border-line bg-cream/50 p-4">
-            <legend className="rounded-full bg-berry px-3 py-0.5 text-sm font-bold text-white">Wish {n}</legend>
+            <legend className="rounded-full bg-berry px-3 py-0.5 text-sm font-bold text-white">Желание {n}</legend>
             <div>
               <label htmlFor={`title${n}`} className="label">
-                What is it?
+                Какво е?
               </label>
               <input
                 id={`title${n}`}
@@ -64,13 +68,13 @@ export default function WishlistSection({ token, initial }: { token: string; ini
                 maxLength={120}
                 value={w.title}
                 onChange={(e) => update(i, "title", e.target.value)}
-                placeholder={["Cosy wool socks", "A good mystery novel", "Board game night"][i]}
+                placeholder={["Топли вълнени чорапи", "Хубав криминален роман", "Настолна игра"][i]}
                 className="input"
               />
             </div>
             <div>
               <label htmlFor={`url${n}`} className="label">
-                Link <span className="font-normal text-muted">(optional)</span>
+                Линк {optional}
               </label>
               <input
                 id={`url${n}`}
@@ -86,7 +90,7 @@ export default function WishlistSection({ token, initial }: { token: string; ini
             </div>
             <div>
               <label htmlFor={`description${n}`} className="label">
-                Description <span className="font-normal text-muted">(optional)</span>
+                Описание {optional}
               </label>
               <textarea
                 id={`description${n}`}
@@ -95,7 +99,7 @@ export default function WishlistSection({ token, initial }: { token: string; ini
                 maxLength={500}
                 value={w.description}
                 onChange={(e) => update(i, "description", e.target.value)}
-                placeholder="Size, colour, anything that helps"
+                placeholder="Размер, цвят, всичко, което помага"
                 className="input resize-y"
               />
             </div>
@@ -107,7 +111,7 @@ export default function WishlistSection({ token, initial }: { token: string; ini
 
       <div className="flex flex-wrap gap-3">
         <button type="submit" className="btn-berry text-lg" disabled={pending}>
-          {pending ? "Saving…" : complete ? "Save changes" : "🎁 Save & reveal my giftee"}
+          {pending ? "Запазване…" : complete ? "Запази промените" : "🎁 Запази и виж на кого подаряваш"}
         </button>
         {complete && (
           <button
@@ -118,7 +122,7 @@ export default function WishlistSection({ token, initial }: { token: string; ini
               setEditing(false);
             }}
           >
-            Cancel
+            Отказ
           </button>
         )}
       </div>
