@@ -48,7 +48,7 @@ export default function WishlistSection({ token, initial }: { token: string; ini
       <div>
         <h2 className="font-display text-3xl text-pine">Твоят списък с желания</h2>
         <p className="text-muted">
-          Добави 3 неща, които би искал(а) да получиш. За всяко постави линк, напиши описание или и двете.
+          Добави 3 неща, които би искал(а) да получиш. Линкът и описанието не са задължителни, но помагат.
         </p>
       </div>
 
@@ -79,8 +79,11 @@ export default function WishlistSection({ token, initial }: { token: string; ini
               <input
                 id={`url${n}`}
                 name={`url${n}`}
-                type="url"
+                type="text"
                 inputMode="url"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
                 maxLength={2000}
                 value={w.url}
                 onChange={(e) => update(i, "url", e.target.value)}

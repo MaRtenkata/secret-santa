@@ -24,18 +24,18 @@ export const eventSchema = z
     message: "Всеки участник трябва да има различен имейл.",
   });
 
-export const wishlistItemSchema = z
-  .object({
-    title: z.string().trim().min(1, "Напиши какво е всяко желание.").max(120),
-    url: z
-      .string()
-      .trim()
-      .max(2000)
-      .transform((v) => (v === "" ? null : v))
-      .refine((v) => v === null || /^https?:\/\/\S+\.\S+/i.test(v), "Линковете трябва да започват с http:// или https://"),
-    description: optionalText(500),
-  })
-  .refine((i) => i.url || i.description, { message: "Добави линк или кратко описание към всяко желание." });
+// Only the title is required. Link and description are both optional.
+export const wishlistItemSchema = z.object({
+  title: z.string().trim().min(1, "Напиши какво е всяко желание.").max(120),
+  url: z
+    .string()
+    .trim()
+    .max(2000)
+    // Accept "emag.bg/..." or "www.emag.bg/..." and add https:// for the user.
+    .transform((v) => (v === "" ? null : /^https?:\/\//i.test(v) ? v : `https://${v}`))
+    .refine((v) => v === null || /^https?:\/\/[^\s/]+\.[^\s]+$/i.test(v), "Този линк не изглежда правилен."),
+  description: optionalText(500),
+});
 
 export const wishlistSchema = z.array(wishlistItemSchema).length(3, "Добави точно 3 желания.");
 

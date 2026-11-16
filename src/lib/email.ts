@@ -47,25 +47,44 @@ export async function sendInvite(e: InviteEmail) {
     .filter(Boolean)
     .join("<br>");
 
-  const html = `
-<div lang="bg" style="background:#f6efe6;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#2a1d1d">
-  <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #ead9c6">
-    <div style="background:#9b1c2a;color:#fff6ee;padding:24px;text-align:center">
-      <div style="font-size:40px;line-height:1">🎁</div>
-      <h1 style="margin:8px 0 0;font-size:24px">${esc(e.eventName)}</h1>
-    </div>
-    <div style="padding:24px;font-size:16px;line-height:1.55">
-      <p style="margin:0 0 12px">Здравей, ${esc(e.name)}!</p>
-      <p style="margin:0 0 16px">${intro}</p>
-      ${e.message ? `<p style="margin:0 0 16px;padding:12px 16px;background:#fbf5ec;border-left:4px solid #c8962e">${esc(e.message).replace(/\n/g, "<br>")}</p>` : ""}
-      ${details ? `<p style="margin:0 0 20px">${details}</p>` : ""}
-      <p style="text-align:center;margin:24px 0">
-        <a href="${e.link}" style="background:#1f6b45;color:#ffffff;text-decoration:none;padding:14px 24px;border-radius:999px;font-weight:bold;display:inline-block">Напиши желанията си и виж на кого подаряваш</a>
-      </p>
-      <p style="margin:0;font-size:13px;color:#6e5c5a">Този линк е само за теб, не го споделяй. Ако бутонът не работи, копирай това в браузъра си:<br><span style="word-break:break-all">${e.link}</span></p>
-    </div>
-  </div>
-</div>`;
+  // Table layout and inline styles only: many webmail clients (Outlook, abv.bg, Yahoo, mail.bg)
+  // drop <div> styling or make styled <a> blocks unclickable. The whole button cell is a link,
+  // and a plain clickable link sits underneath as a backup.
+  const link = esc(e.link);
+  const html = `<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f6efe6">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f6efe6" style="background-color:#f6efe6">
+  <tr><td align="center" style="padding:32px 12px">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="max-width:520px;background-color:#ffffff;border:1px solid #ead9c6">
+      <tr><td align="center" bgcolor="#9b1c2a" style="background-color:#9b1c2a;padding:24px;font-family:Arial,Helvetica,sans-serif;color:#fff6ee">
+        <div style="font-size:40px;line-height:48px">🎁</div>
+        <div style="font-size:24px;line-height:30px;font-weight:bold;color:#fff6ee">${esc(e.eventName)}</div>
+      </td></tr>
+      <tr><td style="padding:24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:24px;color:#2a1d1d">
+        <p style="margin:0 0 12px">Здравей, ${esc(e.name)}!</p>
+        <p style="margin:0 0 16px">${intro}</p>
+        ${e.message ? `<p style="margin:0 0 16px;padding:12px 16px;background-color:#fbf5ec;border-left:4px solid #c8962e">${esc(e.message).replace(/\n/g, "<br>")}</p>` : ""}
+        ${details ? `<p style="margin:0 0 20px">${details}</p>` : ""}
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:24px auto">
+          <tr><td align="center" bgcolor="#1f6b45" style="background-color:#1f6b45;border-radius:8px">
+            <a href="${link}" target="_blank" rel="noopener" style="display:block;padding:14px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:8px">Напиши желанията си и виж на кого подаряваш</a>
+          </td></tr>
+        </table>
+        <p style="margin:0 0 6px;font-size:13px;line-height:19px;color:#6e5c5a">Ако бутонът не работи, натисни този линк или го копирай в браузъра си:</p>
+        <p style="margin:0 0 16px;font-size:13px;line-height:19px;word-break:break-all"><a href="${link}" target="_blank" rel="noopener" style="color:#1f6b45;text-decoration:underline">${link}</a></p>
+        <p style="margin:0;font-size:13px;line-height:19px;color:#6e5c5a">Този линк е само за теб, не го споделяй.</p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
 
   const text = `Здравей, ${e.name}!\n\n${intro}\n\n${e.message ? e.message + "\n\n" : ""}${e.budget ? "Бюджет: " + e.budget + "\n" : ""}${e.exchangeDate ? "Размяна на подаръците: " + e.exchangeDate + "\n" : ""}\nТвоят личен линк: ${e.link}\n`;
 
