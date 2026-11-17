@@ -5,6 +5,7 @@ import PageShell from "@/components/PageShell";
 import SubmitButton from "@/components/SubmitButton";
 import { requireAdmin } from "@/lib/auth";
 import { getEventWithPeople } from "@/lib/queries";
+import EditParticipant from "./EditParticipant";
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -67,6 +68,9 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                     Изпрати отново
                   </SubmitButton>
                 </form>
+              </div>
+              <div className="w-full">
+                <EditParticipant id={p.id} name={p.name} email={p.email} />
               </div>
             </li>
           ))}

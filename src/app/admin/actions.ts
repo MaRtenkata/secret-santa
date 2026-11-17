@@ -1,7 +1,7 @@
 "use server";
 
 import { randomBytes, randomUUID } from "node:crypto";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -10,7 +10,7 @@ import { requireAdmin } from "@/lib/auth";
 import { drawNames } from "@/lib/draw";
 import { appUrl, sendInvite } from "@/lib/email";
 import { createSessionToken, passwordMatches, SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
-import { eventSchema, firstError } from "@/lib/validation";
+import { eventSchema, firstError, participantSchema } from "@/lib/validation";
 
 export type FormState = { error?: string } | undefined;
 
@@ -111,6 +111,51 @@ export async function resendEmail(formData: FormData) {
   const event = (await db().select().from(events).where(eq(events.id, p.eventId)))[0];
   await emailParticipant(event, p);
   revalidatePath(`/admin/events/${p.eventId}`);
+}
+
+export type EditState = { error?: string; sent?: boolean; emailError?: string } | undefined;
+
+/**
+ * Fixes a participant's name/email and sends their invite again.
+ * If the email changes, they get a fresh private link and the old one stops working,
+ * in case the first email went to the wrong person. Their wishlist and pairing are kept.
+ */
+export async function updateParticipant(_: EditState, formData: FormData): Promise<EditState> {
+  await requireAdmin();
+  const id = String(formData.get("participantId") ?? "");
+  const p = (await db().select().from(participants).where(eq(participants.id, id)))[0];
+  if (!p) return { error: "Участникът не е намерен." };
+
+  const parsed = participantSchema.safeParse({ name: formData.get("name") ?? "", email: formData.get("email") ?? "" });
+  if (!parsed.success) return { error: firstError(parsed.error) };
+  const { name, email } = parsed.data;
+
+  if (email !== p.email) {
+    const clash = await db()
+      .select({ id: participants.id })
+      .from(participants)
+      .where(and(eq(participants.eventId, p.eventId), eq(participants.email, email), ne(participants.id, p.id)));
+    if (clash.length) return { error: "Друг участник в това събитие вече използва този имейл." };
+  }
+
+  const emailChanged = email !== p.email;
+  const [updated] = await db()
+    .update(participants)
+    .set({
+      name,
+      email,
+      ...(emailChanged ? { token: randomBytes(24).toString("base64url"), emailSentAt: null } : {}),
+      emailError: null,
+    })
+    .where(eq(participants.id, p.id))
+    .returning();
+
+  const event = (await db().select().from(events).where(eq(events.id, p.eventId)))[0];
+  await emailParticipant(event, updated);
+  const latest = (await db().select().from(participants).where(eq(participants.id, p.id)))[0];
+
+  revalidatePath(`/admin/events/${p.eventId}`);
+  return latest?.emailError ? { emailError: latest.emailError } : { sent: true };
 }
 
 export async function remindMissingWishlists(formData: FormData) {
