@@ -37,7 +37,13 @@ export const wishlistItemSchema = z.object({
   description: optionalText(500),
 });
 
-export const wishlistSchema = z.array(wishlistItemSchema).length(3, "Добави точно 3 желания.");
+export const MIN_WISHES = 3;
+export const MAX_WISHES = 10;
+
+export const wishlistSchema = z
+  .array(wishlistItemSchema)
+  .min(MIN_WISHES, `Добави поне ${MIN_WISHES} желания.`)
+  .max(MAX_WISHES, `Може да добавиш най-много ${MAX_WISHES} желания.`);
 
 export function firstError(err: z.ZodError) {
   return err.issues[0]?.message ?? "Нещо във формата не е наред.";

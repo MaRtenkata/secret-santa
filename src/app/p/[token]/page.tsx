@@ -5,6 +5,7 @@ import { db, events, participants } from "@/db";
 import PageShell from "@/components/PageShell";
 import WishList from "@/components/WishList";
 import { getWishlist } from "@/lib/queries";
+import { MIN_WISHES } from "@/lib/validation";
 import WishlistSection from "./WishlistSection";
 
 export const metadata: Metadata = { referrer: "no-referrer" };
@@ -17,7 +18,7 @@ export default async function ParticipantPage({ params }: { params: Promise<{ to
   if (!me) notFound();
   const event = (await db().select().from(events).where(eq(events.id, me.eventId)))[0];
   const myWishes = await getWishlist(me.id);
-  const unlocked = myWishes.length === 3;
+  const unlocked = myWishes.length >= MIN_WISHES;
 
   // The giftee is only looked up once the wishlist is complete, so it never reaches the browser before then.
   let giftee: { name: string; wishes: Awaited<ReturnType<typeof getWishlist>> } | null = null;
@@ -55,7 +56,7 @@ export default async function ParticipantPage({ params }: { params: Promise<{ to
             <p className="mt-1 text-center font-display text-6xl text-pine">🎁 {giftee.name}</p>
             <div className="mt-6">
               <h2 className="mb-3 font-bold">Списъкът с желания на {giftee.name}</h2>
-              {giftee.wishes.length === 3 ? (
+              {giftee.wishes.length >= MIN_WISHES ? (
                 <WishList items={giftee.wishes} />
               ) : (
                 <p className="rounded-xl bg-cream px-4 py-3 text-muted">
@@ -70,7 +71,7 @@ export default async function ParticipantPage({ params }: { params: Promise<{ to
             <p className="text-5xl">🔒</p>
             <h2 className="mt-2 font-display text-3xl text-berry">На кого ще подаряваш?</h2>
             <p className="mx-auto mt-1 max-w-sm text-muted">
-              Попълни 3-те си желания по-долу и името ще се появи точно тук.
+              Попълни поне 3 желания по-долу и името ще се появи точно тук.
             </p>
           </section>
         )}

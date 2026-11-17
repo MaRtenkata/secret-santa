@@ -2,16 +2,27 @@
 
 import { useActionState, useState } from "react";
 import WishList from "@/components/WishList";
+import { MAX_WISHES, MIN_WISHES } from "@/lib/validation";
 import { saveWishlist, type WishlistState } from "./actions";
 
 type Wish = { title: string; url: string; description: string };
+type Row = Wish & { key: number };
+
+let nextKey = 0;
+const toRow = (w: Wish): Row => ({ ...w, key: nextKey++ });
+const blank = (): Row => toRow({ title: "", url: "", description: "" });
+const placeholders = ["Топли вълнени чорапи", "Хубав криминален роман", "Настолна игра"];
+
+/** The saved wishes, padded with empty rows up to the minimum. */
+const rowsFrom = (wishes: Wish[]) => [
+  ...wishes.map(toRow),
+  ...Array.from({ length: Math.max(0, MIN_WISHES - wishes.length) }, blank),
+];
 
 export default function WishlistSection({ token, initial }: { token: string; initial: Wish[] }) {
-  const complete = initial.length === 3;
+  const complete = initial.length >= MIN_WISHES;
   const [editing, setEditing] = useState(!complete);
-  const [wishes, setWishes] = useState<Wish[]>(
-    complete ? initial : [0, 1, 2].map((i) => initial[i] ?? { title: "", url: "", description: "" }),
-  );
+  const [rows, setRows] = useState<Row[]>(() => rowsFrom(initial));
 
   const [state, action, pending] = useActionState(async (prev: WishlistState, fd: FormData) => {
     const result = await saveWishlist(token, prev, fd);
@@ -19,8 +30,8 @@ export default function WishlistSection({ token, initial }: { token: string; ini
     return result;
   }, undefined);
 
-  const update = (i: number, field: keyof Wish, value: string) =>
-    setWishes((ws) => ws.map((w, j) => (j === i ? { ...w, [field]: value } : w)));
+  const update = (key: number, field: keyof Wish, value: string) =>
+    setRows((rs) => rs.map((r) => (r.key === key ? { ...r, [field]: value } : r)));
 
   const optional = <span className="font-normal text-muted">(по желание)</span>;
 
@@ -29,8 +40,15 @@ export default function WishlistSection({ token, initial }: { token: string; ini
       <section className="card">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-display text-3xl text-pine">Твоят списък с желания</h2>
-          <button type="button" onClick={() => setEditing(true)} className="btn-ghost text-sm">
-            ✏️ Редактирай
+          <button
+            type="button"
+            onClick={() => {
+              setRows(rowsFrom(initial));
+              setEditing(true);
+            }}
+            className="btn-ghost text-sm"
+          >
+            ✏️ Редактирай или добави
           </button>
         </div>
         {state?.saved && (
@@ -48,15 +66,25 @@ export default function WishlistSection({ token, initial }: { token: string; ini
       <div>
         <h2 className="font-display text-3xl text-pine">Твоят списък с желания</h2>
         <p className="text-muted">
-          Добави 3 неща, които би искал(а) да получиш. Линкът и описанието не са задължителни, но помагат.
+          Добави поне {MIN_WISHES} неща, които би искал(а) да получиш (до {MAX_WISHES}). Линкът и описанието не са
+          задължителни, но помагат.
         </p>
       </div>
 
-      {wishes.map((w, i) => {
+      {rows.map((w, i) => {
         const n = i + 1;
         return (
-          <fieldset key={n} className="grid gap-3 rounded-xl border border-line bg-cream/50 p-4">
+          <fieldset key={w.key} className="grid gap-3 rounded-xl border border-line bg-cream/50 p-4">
             <legend className="rounded-full bg-berry px-3 py-0.5 text-sm font-bold text-white">Желание {n}</legend>
+            {rows.length > MIN_WISHES && (
+              <button
+                type="button"
+                onClick={() => setRows((rs) => rs.filter((r) => r.key !== w.key))}
+                className="-mt-2 justify-self-end text-sm font-semibold text-berry hover:underline"
+              >
+                ✕ Премахни
+              </button>
+            )}
             <div>
               <label htmlFor={`title${n}`} className="label">
                 Какво е?
@@ -67,8 +95,8 @@ export default function WishlistSection({ token, initial }: { token: string; ini
                 required
                 maxLength={120}
                 value={w.title}
-                onChange={(e) => update(i, "title", e.target.value)}
-                placeholder={["Топли вълнени чорапи", "Хубав криминален роман", "Настолна игра"][i]}
+                onChange={(e) => update(w.key, "title", e.target.value)}
+                placeholder={placeholders[i] ?? "Още нещо, което би те зарадвало"}
                 className="input"
               />
             </div>
@@ -86,7 +114,7 @@ export default function WishlistSection({ token, initial }: { token: string; ini
                 spellCheck={false}
                 maxLength={2000}
                 value={w.url}
-                onChange={(e) => update(i, "url", e.target.value)}
+                onChange={(e) => update(w.key, "url", e.target.value)}
                 placeholder="https://…"
                 className="input"
               />
@@ -101,7 +129,7 @@ export default function WishlistSection({ token, initial }: { token: string; ini
                 rows={2}
                 maxLength={500}
                 value={w.description}
-                onChange={(e) => update(i, "description", e.target.value)}
+                onChange={(e) => update(w.key, "description", e.target.value)}
                 placeholder="Размер, цвят, всичко, което помага"
                 className="input resize-y"
               />
@@ -110,6 +138,12 @@ export default function WishlistSection({ token, initial }: { token: string; ini
         );
       })}
 
+      {rows.length < MAX_WISHES && (
+        <button type="button" onClick={() => setRows((rs) => [...rs, blank()])} className="btn-ghost justify-self-start">
+          + Добави още едно желание
+        </button>
+      )}
+
       {state?.error && <p className="rounded-xl bg-berry/10 px-4 py-3 font-semibold text-berry">{state.error}</p>}
 
       <div className="flex flex-wrap gap-3">
@@ -117,14 +151,7 @@ export default function WishlistSection({ token, initial }: { token: string; ini
           {pending ? "Запазване…" : complete ? "Запази промените" : "🎁 Запази и виж на кого подаряваш"}
         </button>
         {complete && (
-          <button
-            type="button"
-            className="btn-ghost"
-            onClick={() => {
-              setWishes(initial);
-              setEditing(false);
-            }}
-          >
+          <button type="button" className="btn-ghost" onClick={() => setEditing(false)}>
             Отказ
           </button>
         )}
